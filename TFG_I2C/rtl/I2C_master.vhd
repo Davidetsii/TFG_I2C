@@ -20,14 +20,17 @@ entity I2C_master is
             SCL     : out std_logic;
             DATA_READ: out std_logic_vector(7 downto 0);
             BYTES_W     : in std_logic_vector(1 downto 0);
-            BYTES_R     : in std_logic_vector(1 downto 0)                     
+            BYTES_R     : in std_logic_vector(1 downto 0);
+            ack_s   : inout std_logic;
+            div     : inout std_logic_vector(1 downto 0);
+            overflow: inout std_logic                     
     );
 end I2C_master;
 
 architecture Behavioral of I2C_master is
 
-    signal overflow, stop_count, stop_scl, sipo, piso, ack_s, stop_sda, zero_sda, reading, condition     : std_logic;
-    signal div      : std_logic_vector(1 downto 0);
+    signal stop_count, stop_scl, sipo, piso, stop_sda, zero_sda, reading, condition     : std_logic;
+    --signal div      : std_logic_vector(1 downto 0);
 
 begin
 
