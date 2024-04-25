@@ -88,7 +88,7 @@ begin
             end loop;
             wait for 11*SCL_PERIOD*2;
             
-            wait for 3*SCL_PERIOD +3*SCL_PERIOD/2 + 999*CLK_PERIOD;
+            wait for 4*SCL_PERIOD +3*SCL_PERIOD/2 + 999*CLK_PERIOD;
             
             for k in 0 to to_integer(unsigned(BYTES_R)) - 1 loop
                 for i in 0 to 6 loop
