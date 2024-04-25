@@ -57,12 +57,11 @@ begin
             byte_w      <= 0;
             byte_r      <= 0;
             cont <= (others => '0');
-            DONE <= '1';
+            DONE <= '0';
             condition <= '0';
             R_W_aux <= '0';
         elsif clk'event and clk = '1' then
                 if FSM = IDLE then
-                    FSM_ant <= IDLE;
                     stop_count_aux <= '1';
                     stop_scl_aux <= '1';
                     sipo        <= '0';
@@ -73,7 +72,11 @@ begin
                     byte_w      <= 0;
                     byte_r      <= 0; 
                     cont <= (others => '0');
-                    DONE <= '0';   
+                    if FSM_ant = IDLE then                    
+                        DONE <= '0';
+                    elsif FSM_ant = STOP then
+                        DONE <= '1';
+                    end if;   
                     condition <= '0'; 
                     R_W_aux <= '0';               
                     if START = '1' then
@@ -172,17 +175,29 @@ begin
                     piso        <= '0';
                     s_ack       <= '0';  
                     DONE <= '0';  
-                    condition <= '0';    
-                    if (overflow = '1' and div = "10") then
-                        if cont_restart = "001" then
+                       
+                    if (overflow = '1' and div = "01") then
+                        if cont_restart = "011" then
                             FSM <= ZERO;
                             FSM_ant <= RESTART;
                             R_W_aux <= '1';
+                            condition <= '0'; 
+                        elsif cont_restart = "010" then
+                            cont_restart <= cont_restart + 1;
+                            condition <= '0'; 
+                            stop_scl_aux <= '1';  
+                            stop_sda    <= '0';
+                            zero_sda    <= '1';   
+                        elsif cont_restart = "001" then
+                            cont_restart <= cont_restart + 1;    
+                            condition <= '0';    
+                            stop_scl_aux <= '1';                   
                         elsif cont_restart = "000" then
                             cont_restart <= cont_restart + 1;
-                            stop_sda    <= '0';
-                            zero_sda    <= '1';
-                            stop_scl_aux <= '1';                                       
+                            stop_sda    <= '1';
+                            zero_sda    <= '0';
+                            stop_scl_aux <= '0';  
+                            condition <= '1';                                      
                         end if;
                     end if;                                      
 
