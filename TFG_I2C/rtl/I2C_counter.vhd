@@ -7,7 +7,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity I2C_counter is
     generic (
                 C_FREQ_SYS   : integer := 125000000;    -- 125 MHz
-                C_FREQ_SCL   : integer := 125000       -- 125 KHz en SCL    
+                C_FREQ_SCL   : integer := 100000       -- 100 KHz en SCL    
     );
     Port ( 
             -- ENTRADAS

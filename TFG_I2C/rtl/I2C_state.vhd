@@ -13,6 +13,7 @@ entity I2C_state is
             div         : in std_logic_vector(1 downto 0);
             SDA         : in std_logic;
             DONE        : out std_logic;
+            done_aux    : out std_logic;
             stop_count  : out std_logic;
             stop_scl    : out std_logic;
             sipo        : out std_logic;
@@ -58,6 +59,7 @@ begin
             byte_r      <= 0;
             cont <= (others => '0');
             DONE <= '0';
+            done_aux <= '0';
             condition <= '0';
             R_W_aux <= '0';
         elsif clk'event and clk = '1' then
@@ -74,8 +76,10 @@ begin
                     cont <= (others => '0');
                     if FSM_ant = IDLE then                    
                         DONE <= '0';
+                        done_aux <= '0';
                     elsif FSM_ant = STOP then
                         DONE <= '1';
+                        done_aux <= '1';
                     end if;   
                     condition <= '0'; 
                     R_W_aux <= '0';               
@@ -92,6 +96,7 @@ begin
                     zero_sda    <= '1';
                     cont <= (others => '0');
                     DONE <= '0';
+                    done_aux <= '0';
                     condition <= '1';
                     if (overflow = '1' and div = "01") then
                         FSM <= ZERO;
@@ -106,6 +111,7 @@ begin
                     stop_sda    <= '0';
                     zero_sda    <= '0';
                     DONE <= '0';
+                    done_aux <= '0';
                     condition <= '0';
                     if final_scl = '1' then
                         if cont = "111" then
@@ -121,7 +127,8 @@ begin
                     piso        <= '0';
                     s_ack       <= '1';
                     cont <= (others => '0');
-                    DONE <= '0';        
+                    DONE <= '0';   
+                    done_aux <= '0';     
                     condition <= '0';   
                     if byte_r = to_integer(unsigned(BYTES_R)) and R_W_aux = '1' then
                         stop_sda    <= '1';
@@ -150,7 +157,8 @@ begin
                     piso        <= '0';
                     s_ack       <= '0';
                     zero_sda    <= '0';  
-                    DONE <= '0';     
+                    DONE <= '0'; 
+                    done_aux <= '0';    
                     condition <= '0';           
                     if final_scl = '1' then
                         if cont = "111" then
@@ -175,6 +183,7 @@ begin
                     piso        <= '0';
                     s_ack       <= '0';  
                     DONE <= '0';  
+                    done_aux <= '0';
                        
                     if (overflow = '1' and div = "01") then
                         if cont_restart = "011" then
@@ -220,6 +229,7 @@ begin
                                 FSM_ant <= IDLE;      
                             end if;
                             DONE <= '0';
+                            done_aux <= '0';
                             byte_w <= byte_w + 1;
                         else
                             if cont_zero = "11" then
@@ -281,6 +291,7 @@ begin
                     zero_sda    <= '1';
                     cont <= (others => '0');
                     DONE <= '1';
+                    done_aux <= '1';
                     condition <= '1';
                     if (overflow = '1' and div = "01") then
                         FSM <= STOP;
@@ -296,6 +307,7 @@ begin
                     zero_sda    <= '0';
                     cont <= (others => '0');
                     DONE <= '1';
+                    done_aux <= '1';
                     condition <= '0';
                     if final_scl = '1' then
                         FSM <= IDLE;
