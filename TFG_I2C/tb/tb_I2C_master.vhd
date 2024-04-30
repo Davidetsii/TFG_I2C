@@ -5,16 +5,16 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity tb_I2C_master is
         generic (
-                    C_FREQ_SYS  : integer := 125000000;    -- 125 MHz
+                    C_FREQ_SYS  : integer := 100000000;    -- 100 MHz
                     C_FREQ_SCL  : integer := 100000        -- 100 KHz en SCL                          
         );
 end tb_I2C_master;
 
 architecture Behavioral of tb_I2C_master is
 
-    constant CLK_PERIOD : time := (1000000000/C_FREQ_SYS)* 1ns; -- 125 MHz
-    constant SCL_PERIOD : time := (1000000/C_FREQ_SCL)* 1us; -- 125 MHz 88
-    signal clk, reset, START, DONE, SDA, SCL   : std_logic;
+    constant CLK_PERIOD : time := (1000000000/C_FREQ_SYS)* 1ns; -- 100 MHz
+    constant SCL_PERIOD : time := (1000000/C_FREQ_SCL)* 1us; -- 100 KHz 
+    signal clk, reset_n, START, DONE, SDA, SCL, R_W   : std_logic;
     signal DATA_SLAVE   : std_logic_vector(7 downto 0) := x"35";
     signal DATA_READ    : std_logic_vector(7 downto 0);
     signal DATA_IN      : std_logic_vector(7 downto 0) := x"5d";
@@ -32,7 +32,7 @@ begin
         )
         port map(
                     clk     => clk,
-                    reset   => reset,
+                    reset_n => reset_n,
                     START   => START,     
                     ADDRESS     => ADDRESS,
                     DATA_IN     => DATA_IN,                 
@@ -40,6 +40,7 @@ begin
                     SDA     => SDA,
                     SCL     => SCL,
                     DATA_READ  => DATA_READ,
+                    R_W     => R_W,
                     BYTES_W     => BYTES_W,
                     BYTES_R     => BYTES_R                  
         );
@@ -54,12 +55,12 @@ begin
     
     I2C_stimuli : process
     begin
-        reset <= '1';
+        reset_n <= '0';
         START <= '0';
         SDA <= 'Z';
         wait for SCL_PERIOD/8;
             
-        reset <= '0';
+        reset_n <= '1';
             
         if BYTES_R = "00" then
             wait for SCL_PERIOD/8;
