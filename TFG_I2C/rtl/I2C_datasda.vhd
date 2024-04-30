@@ -5,7 +5,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity I2C_datasda is
     Port ( 
             clk         : in std_logic;
-            reset       : in std_logic; 
+            reset_n     : in std_logic; 
             overflow    : in std_logic;
             div         : in std_logic_vector(1 downto 0);                
             sipo        : in std_logic;
@@ -32,9 +32,9 @@ architecture Behavioral of I2C_datasda is
 begin
 
     -- REGISTROS CON DESPLAZAMIENTO (PISO, SIPO) Y CONTROL DEL SDA EN ACK
-    process(clk,reset)
+    process(clk,reset_n)
     begin
-        if reset = '1' then
+        if reset_n = '0' then
             aux <= ADDRESS & R_W & DATA_IN;
             data_out <= (others => '0');
         elsif clk'event and clk = '1' then
@@ -67,9 +67,9 @@ begin
     end process;
     
     -- SDA
-    process(clk,reset)
+    process(clk,reset_n)
     begin
-        if reset = '1' then
+        if reset_n = '0' then
             sda_out <= '1';
         elsif clk'event and clk = '1' then
                 if ack_s = '1' and stop_sda = '1' then
@@ -97,9 +97,9 @@ begin
     end process;
     
     --AJUSTE DEL CICLO SDA PARA CORRECTO FUNCIONAMIENTO
-    process(clk,reset)
+    process(clk,reset_n)
     begin
-        if reset = '1' then
+        if reset_n = '0' then
             read_aux <= '0';
         elsif clk'event and clk = '1' then
             if save = '1' then

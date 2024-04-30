@@ -6,9 +6,10 @@ use IEEE.NUMERIC_STD.ALL;
 entity I2C_state is
     Port ( 
             clk         : in std_logic;
-            reset       : in std_logic;
+            reset_n     : in std_logic;
             START       : in std_logic; -- ON = '1', OFF = '0'
             R_W         : out std_logic; -- WRITE = '0', READ = '1'
+            r_w_inter   : out std_logic;
             overflow    : in std_logic;
             div         : in std_logic_vector(1 downto 0);
             SDA         : in std_logic;
@@ -34,16 +35,16 @@ architecture Behavioral of I2C_state is
     signal FSM, FSM_ant  : machine;
     signal final_scl, stop_scl_aux, stop_count_aux, save, final_count, s_ack, R_W_aux  : std_logic;
     signal cont, cont_restart : unsigned (2 downto 0);
-    signal byte_w   : integer range 0 to to_integer(unsigned(BYTES_W) + 1);
-    signal byte_r   : integer range 0 to to_integer(unsigned(BYTES_R));
+    signal byte_w   : integer range 0 to 4;
+    signal byte_r   : integer range 0 to 3;
     signal cont_zero: unsigned(1 downto 0);
     
 begin
 
     --FSM
-    process(clk,reset)
+    process(clk,reset_n)
     begin
-        if reset = '1' then
+        if reset_n = '0' then
             FSM <= IDLE;
             FSM_ant <= IDLE;
             cont_restart <= "000";
@@ -319,6 +320,7 @@ begin
     
     ack_s <= s_ack;
     R_W <= R_W_aux;
+    r_w_inter <= R_W_aux;
     final_count <= '1' when (final_scl = '1' and  stop_scl_aux = '1') and cont = "111" else '0';
     final_scl <= '1' when (overflow = '1' and div = "11") else '0';
     stop_scl <= stop_scl_aux;

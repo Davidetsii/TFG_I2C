@@ -6,13 +6,13 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity I2C_counter is
     generic (
-                C_FREQ_SYS   : integer := 125000000;    -- 125 MHz
+                C_FREQ_SYS   : integer := 100000000;    -- 100 MHz
                 C_FREQ_SCL   : integer := 100000       -- 100 KHz en SCL    
     );
     Port ( 
             -- ENTRADAS
             clk     : in std_logic;
-            reset   : in std_logic;
+            reset_n : in std_logic;
             stop    : in std_logic;
             stop_count  : in std_logic;
             condition   : in std_logic;
@@ -35,9 +35,9 @@ architecture Behavioral of I2C_counter is
 begin
 
     -- CONTADOR 500 KHz
-    cont_500KHz : process (clk,reset)
+    cont_500KHz : process (clk,reset_n)
     begin
-        if reset = '1' then
+        if reset_n = '0' then
             cont <= 0;
         elsif clk'event and clk = '1' then
             if stop_count = '1' then
@@ -53,9 +53,9 @@ begin
     end process;
     
     -- CONTADOR 1 a 4
-    cont_1a4: process (clk,reset)
+    cont_1a4: process (clk,reset_n)
     begin
-        if reset = '1' then
+        if reset_n = '0' then
             cont_4 <= (others => '0');
         elsif clk'event and clk = '1' then
             if stop_count = '1' then
@@ -90,7 +90,7 @@ begin
      --       end if;
    --     end if;
    -- end process;    
-   SCL <= '0' when (cont_4(1) = '0' and reset = '0' and clr_cont = '0') or (condition = '1' and DONE = '1') else '1';
+   SCL <= '0' when (cont_4(1) = '0' and reset_n = '1' and clr_cont = '0') or (condition = '1' and DONE = '1') else '1';
     
     -- Reset síncrono del SCL
     clr_cont <= stop_count or stop;
