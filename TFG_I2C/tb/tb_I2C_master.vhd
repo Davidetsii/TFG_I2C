@@ -14,13 +14,13 @@ architecture Behavioral of tb_I2C_master is
 
     constant CLK_PERIOD : time := (1000000000/C_FREQ_SYS)* 1ns; -- 100 MHz
     constant SCL_PERIOD : time := (1000000/C_FREQ_SCL)* 1us; -- 100 KHz 
-    signal clk, reset_n, START, DONE, SDA, SCL, R_W   : std_logic;
+    signal clk, reset_n, start, done, sda, scl   : std_logic;
+    signal r_w  : std_logic := '0';
     signal DATA_SLAVE   : std_logic_vector(7 downto 0) := x"35";
-    signal DATA_READ    : std_logic_vector(7 downto 0);
-    signal DATA_IN      : std_logic_vector(7 downto 0) := x"5d";
-    signal ADDRESS      : std_logic_vector(6 downto 0) := "1010101";
-    signal BYTES_W      : std_logic_vector(1 downto 0) := "01";
-    signal BYTES_R      : std_logic_vector(1 downto 0) := "00";
+    signal data_out    : std_logic_vector(15 downto 0);
+    signal data_in      : std_logic_vector(7 downto 0) := x"5d";
+    signal address      : std_logic_vector(6 downto 0) := "1010101";
+
     
 
 begin
@@ -33,16 +33,14 @@ begin
         port map(
                     clk     => clk,
                     reset_n => reset_n,
-                    START   => START,     
-                    ADDRESS     => ADDRESS,
-                    DATA_IN     => DATA_IN,                 
-                    DONE    => DONE,
-                    SDA     => SDA,
-                    SCL     => SCL,
-                    DATA_READ  => DATA_READ,
-                    R_W     => R_W,
-                    BYTES_W     => BYTES_W,
-                    BYTES_R     => BYTES_R                  
+                    start   => start,     
+                    address     => address,
+                    data_in     => data_in,                 
+                    done    => done,
+                    sda     => sda,
+                    scl     => scl,
+                    data_out  => data_out,
+                    r_w     => r_w             
         );
         
     clk_stimuli : process
@@ -56,20 +54,20 @@ begin
     I2C_stimuli : process
     begin
         reset_n <= '0';
-        START <= '0';
-        SDA <= 'Z';
+        start <= '0';
+        sda <= 'Z';
         wait for SCL_PERIOD/8;
             
         reset_n <= '1';
             
-        if BYTES_R = "00" then
+        if r_w = '0' then
             wait for SCL_PERIOD/8;
-            START <= '1';
+            start <= '1';
             wait for CLK_PERIOD + CLK_PERIOD/4;
-            START <= '0';
+            start <= '0';
             wait for 9*SCL_PERIOD + SCL_PERIOD/2;
-            for k in 0 to to_integer(unsigned(BYTES_W)) - 1 loop
-                DATA_IN <= DATA_IN(0)&DATA_IN(7 downto 1);
+            for k in 0 to 0 loop
+                data_in <= data_in(0)&data_in(7 downto 1);
                 wait for 11*SCL_PERIOD;            
             end loop;            
             wait;
@@ -79,22 +77,22 @@ begin
             wait for CLK_PERIOD + CLK_PERIOD/4;
             START <= '0'; 
             wait for 9*SCL_PERIOD + SCL_PERIOD/2;
-            for k in 0 to to_integer(unsigned(BYTES_W)) - 1 loop
-                DATA_IN <= DATA_IN(0)&DATA_IN(7 downto 1);           
+            for k in 0 to 0 loop
+                data_in <= data_in(0)&data_in(7 downto 1);         
                 wait for 11*SCL_PERIOD; 
             end loop;
             wait for 10*SCL_PERIOD + 3*SCL_PERIOD/4;
             
             wait for 4*SCL_PERIOD +3*SCL_PERIOD/2 + 999*CLK_PERIOD;
             
-            for k in 0 to to_integer(unsigned(BYTES_R)) - 1 loop
+            for k in 0 to 1 loop
                 for i in 0 to 6 loop
-                    SDA <= DATA_SLAVE(7 - i);
+                    sda <= DATA_SLAVE(7 - i);
                     wait for SCL_PERIOD;
                 end loop;
-                SDA <= DATA_SLAVE(0);
+                sda <= DATA_SLAVE(0);
                 wait for SCL_PERIOD;
-                SDA <= 'Z';   
+                sda <= 'Z';   
                 wait for 2*SCL_PERIOD;
                 DATA_SLAVE <= DATA_SLAVE(6 downto 0)&'1';
                 wait for SCL_PERIOD;
