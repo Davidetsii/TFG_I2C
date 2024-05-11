@@ -108,7 +108,7 @@ begin
         end if;
     end process;
     
-    data_read <= data_out;
+    data_read <= data_out when done = '1' else (others => '0');
     sda <= 'Z' when read_aux = '1' else sda_out;
     save <= '1' when (overflow = '1' and div = "00") else '0';
     final_scl <= '1' when (overflow = '1' and div = "11") else '0';
