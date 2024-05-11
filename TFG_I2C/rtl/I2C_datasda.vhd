@@ -11,15 +11,15 @@ entity I2C_datasda is
             sipo        : in std_logic;
             piso        : in std_logic;
             ack_s       : in std_logic;
-            R_W         : in std_logic;
-            DONE        : in std_logic;
+            r_w         : in std_logic;
+            done        : in std_logic;
             stop_sda    : in std_logic;
             zero_sda    : in std_logic;
             reading     : in std_logic;
-            ADDRESS     : in std_logic_vector(6 downto 0);
-            DATA_IN     : in std_logic_vector(7 downto 0);
-            SDA         : inout std_logic;
-            DATA_READ   : out std_logic_vector(7 downto 0)       
+            address     : in std_logic_vector(6 downto 0);
+            data_in     : in std_logic_vector(7 downto 0);
+            sda         : inout std_logic;
+            data_read   : out std_logic_vector(15 downto 0)       
     );
 end I2C_datasda;
 
@@ -27,7 +27,7 @@ architecture Behavioral of I2C_datasda is
     
     signal save, final_scl, sda_out, read_aux  : std_logic;
     signal aux  : std_logic_vector(15 downto 0);
-    signal data_out : std_logic_vector(7 downto 0);
+    signal data_out : std_logic_vector(15 downto 0);
     
 begin
 
@@ -35,17 +35,17 @@ begin
     process(clk,reset_n)
     begin
         if reset_n = '0' then
-            aux <= ADDRESS & R_W & DATA_IN;
+            aux <= address & r_w & data_in;
             data_out <= (others => '0');
         elsif clk'event and clk = '1' then
-            if stop_sda = '1' or (zero_sda = '1' and R_W = '1') then
-                aux <= ADDRESS & R_W & DATA_IN;
+            if stop_sda = '1' or (zero_sda = '1' and r_w = '1') then
+                aux <= address & r_w & data_in;
             elsif ack_s = '1' then
-                aux(15 downto 8) <= DATA_IN;
+                aux(15 downto 8) <= data_in;
             elsif final_scl = '1' then
                 if piso = '1' then
                     if ack_s = '1' then
-                        if DONE = '1' then
+                        if done = '1' then
                             aux(15) <= '1';
                         else
                             aux(15) <= '0';
@@ -59,7 +59,7 @@ begin
                     if ack_s = '1' then
                     else
                         -- PARTE SIPO
-                        data_out <= data_out(6 downto 0) & SDA;
+                        data_out <= data_out(14 downto 0) & sda;
                     end if;
                 end if;
             end if;
@@ -76,7 +76,7 @@ begin
                     sda_out <= '1';
                 elsif save = '1' then
                     if ack_s = '1' then
-                        if DONE = '1' then
+                        if done = '1' then
                             sda_out <= '1';
                         else
                         sda_out <= '0';
@@ -108,8 +108,8 @@ begin
         end if;
     end process;
     
-    DATA_READ <= data_out;
-    SDA <= 'Z' when read_aux = '1' else sda_out;
+    data_read <= data_out;
+    sda <= 'Z' when read_aux = '1' else sda_out;
     save <= '1' when (overflow = '1' and div = "00") else '0';
     final_scl <= '1' when (overflow = '1' and div = "11") else '0';
 

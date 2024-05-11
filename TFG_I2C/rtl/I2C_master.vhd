@@ -11,16 +11,14 @@ entity I2C_master is
     Port ( 
             clk     : in std_logic;
             reset_n : in std_logic;
-            START   : in std_logic;     
-            ADDRESS : in std_logic_vector(6 downto 0);
-            DATA_IN : in std_logic_vector(7 downto 0);        
-            DONE    : out std_logic;
-            SDA     : inout std_logic;
-            SCL     : out std_logic;
-            DATA_READ: out std_logic_vector(7 downto 0);
-            R_W     : out std_logic;
-            BYTES_W     : in std_logic_vector(1 downto 0);
-            BYTES_R     : in std_logic_vector(1 downto 0)                   
+            start   : in std_logic;     
+            address : in std_logic_vector(6 downto 0);
+            data_in : in std_logic_vector(7 downto 0);        
+            done    : out std_logic;
+            sda     : inout std_logic;
+            scl     : inout std_logic;
+            data_out: out std_logic_vector(15 downto 0);
+            r_w     : in std_logic                 
     );
 end I2C_master;
 
@@ -42,9 +40,9 @@ begin
             stop        => stop_scl, 
             stop_count  => stop_count,
             condition   => condition,   
-            DONE        => done_aux,  
+            done        => done_aux,  
             overflow    => overflow,
-            SCL         => SCL,
+            scl         => scl,
             div         => div
         );
 
@@ -53,13 +51,12 @@ begin
         port map(
             clk         => clk,
             reset_n     => reset_n, 
-            START       => START,  
-            R_W         => R_W,
+            start       => start,  
             r_w_inter   => r_w_inter,  
             div         => div, 
             overflow    => overflow,
-            SDA         => SDA,
-            DONE        => DONE,
+            sda         => sda,
+            done        => done,
             done_aux    => done_aux,
             stop_count  => stop_count,
             stop_scl    => stop_scl,
@@ -70,8 +67,7 @@ begin
             zero_sda    => zero_sda,
             reading     => reading,
             condition   => condition,
-            BYTES_W     => BYTES_W,
-            BYTES_R     => BYTES_R            
+            operation   => r_w        
         );
 
     SDA_GEN : entity work.I2C_datasda(Behavioral)
@@ -79,19 +75,19 @@ begin
         clk         => clk,
         reset_n     => reset_n,
         overflow    => overflow, 
-        R_W         => r_w_inter, 
-        DONE        => done_aux,       
+        r_w         => r_w_inter, 
+        done        => done_aux,       
         sipo        => sipo,
         piso        => piso,
         ack_s       => ack_s,
         stop_sda    => stop_sda,
         zero_sda    => zero_sda,
         reading     => reading,
-        DATA_IN     => DATA_IN,
-        ADDRESS     => ADDRESS,
-        SDA         => SDA,
+        data_in     => data_in,
+        address     => address,
+        sda         => sda,
         div         => div,
-        DATA_READ   => DATA_READ
+        data_read   => data_out
     );
 
 end Behavioral;

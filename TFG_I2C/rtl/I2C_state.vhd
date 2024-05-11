@@ -7,13 +7,12 @@ entity I2C_state is
     Port ( 
             clk         : in std_logic;
             reset_n     : in std_logic;
-            START       : in std_logic; -- ON = '1', OFF = '0'
-            R_W         : out std_logic; -- WRITE = '0', READ = '1'
-            r_w_inter   : out std_logic;
+            start       : in std_logic; -- ON = '1', OFF = '0' 
+            r_w_inter   : out std_logic;-- WRITE = '0', READ = '1'
             overflow    : in std_logic;
             div         : in std_logic_vector(1 downto 0);
-            SDA         : in std_logic;
-            DONE        : out std_logic;
+            sda         : in std_logic;
+            done        : out std_logic;
             done_aux    : out std_logic;
             stop_count  : out std_logic;
             stop_scl    : out std_logic;
@@ -24,8 +23,7 @@ entity I2C_state is
             zero_sda    : out std_logic;
             reading     : out std_logic;
             condition   : out std_logic;
-            BYTES_W     : in std_logic_vector(1 downto 0);
-            BYTES_R     : in std_logic_vector(1 downto 0)    
+            operation   : in std_logic 
     );
 end I2C_state;
 
@@ -38,6 +36,8 @@ architecture Behavioral of I2C_state is
     signal byte_w   : integer range 0 to 4;
     signal byte_r   : integer range 0 to 3;
     signal cont_zero: unsigned(1 downto 0);
+    signal BYTES_W  : std_logic_vector(1 downto 0) := "01";
+    signal BYTES_R  : std_logic_vector(1 downto 0);
     
 begin
 
@@ -59,7 +59,7 @@ begin
             byte_w      <= 0;
             byte_r      <= 0;
             cont <= (others => '0');
-            DONE <= '0';
+            done <= '0';
             done_aux <= '0';
             condition <= '0';
             R_W_aux <= '0';
@@ -76,15 +76,15 @@ begin
                     byte_r      <= 0; 
                     cont <= (others => '0');
                     if FSM_ant = IDLE then                    
-                        DONE <= '0';
+                        done <= '0';
                         done_aux <= '0';
                     elsif FSM_ant = STOP then
-                        DONE <= '1';
+                        done <= '1';
                         done_aux <= '1';
                     end if;   
                     condition <= '0'; 
                     R_W_aux <= '0';               
-                    if START = '1' then
+                    if start = '1' then
                         FSM <= STARTING;
                     end if;
                 elsif FSM = STARTING then
@@ -96,7 +96,7 @@ begin
                     stop_sda    <= '0';
                     zero_sda    <= '1';
                     cont <= (others => '0');
-                    DONE <= '0';
+                    done <= '0';
                     done_aux <= '0';
                     condition <= '1';
                     if (overflow = '1' and div = "01") then
@@ -111,7 +111,7 @@ begin
                     s_ack       <= '0';
                     stop_sda    <= '0';
                     zero_sda    <= '0';
-                    DONE <= '0';
+                    done <= '0';
                     done_aux <= '0';
                     condition <= '0';
                     if final_scl = '1' then
@@ -128,7 +128,7 @@ begin
                     piso        <= '0';
                     s_ack       <= '1';
                     cont <= (others => '0');
-                    DONE <= '0';   
+                    done <= '0';   
                     done_aux <= '0';     
                     condition <= '0';   
                     if byte_r = to_integer(unsigned(BYTES_R)) and R_W_aux = '1' then
@@ -140,7 +140,7 @@ begin
                     end if;
                     if final_scl = '1' then
                         FSM <= ZERO;
-                        if SDA = '1' then
+                        if sda = '1' then
                             FSM_ant <= ZERO;
                         elsif FSM_ant = RECEIVE then
                             FSM_ant <= RECEIVE;
@@ -158,7 +158,7 @@ begin
                     piso        <= '0';
                     s_ack       <= '0';
                     zero_sda    <= '0';  
-                    DONE <= '0'; 
+                    done <= '0'; 
                     done_aux <= '0';    
                     condition <= '0';           
                     if final_scl = '1' then
@@ -183,7 +183,7 @@ begin
                     sipo        <= '1';
                     piso        <= '0';
                     s_ack       <= '0';  
-                    DONE <= '0';  
+                    done <= '0';  
                     done_aux <= '0';
                        
                     if (overflow = '1' and div = "01") then
@@ -229,7 +229,7 @@ begin
                             else
                                 FSM_ant <= IDLE;      
                             end if;
-                            DONE <= '0';
+                            done <= '0';
                             done_aux <= '0';
                             byte_w <= byte_w + 1;
                         else
@@ -291,7 +291,7 @@ begin
                     stop_sda    <= '0';
                     zero_sda    <= '1';
                     cont <= (others => '0');
-                    DONE <= '1';
+                    done <= '1';
                     done_aux <= '1';
                     condition <= '1';
                     if (overflow = '1' and div = "01") then
@@ -307,7 +307,7 @@ begin
                     stop_sda    <= '1';
                     zero_sda    <= '0';
                     cont <= (others => '0');
-                    DONE <= '1';
+                    done <= '1';
                     done_aux <= '1';
                     condition <= '0';
                     if final_scl = '1' then
@@ -319,7 +319,6 @@ begin
     end process;
     
     ack_s <= s_ack;
-    R_W <= R_W_aux;
     r_w_inter <= R_W_aux;
     final_count <= '1' when (final_scl = '1' and  stop_scl_aux = '1') and cont = "111" else '0';
     final_scl <= '1' when (overflow = '1' and div = "11") else '0';
@@ -327,6 +326,8 @@ begin
     stop_count <= stop_count_aux;
     reading <= '1' when (FSM = ACK and FSM_ant /= RECEIVE) or (FSM = RECEIVE) else '0';
     save <= '1' when (overflow = '1' and div = "00") else '0';
+    BYTES_R <= "10" when operation = '1' else "00";
+    
     
 end Behavioral;
 
