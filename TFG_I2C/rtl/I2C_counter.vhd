@@ -7,7 +7,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity I2C_counter is
     generic (
                 C_FREQ_SYS   : integer := 100000000;    -- 100 MHz
-                C_FREQ_SCL   : integer := 100000       -- 100 KHz en SCL    
+                C_FREQ_I2C   : integer := 100000       -- 100 KHz en SCL    
     );
     Port ( 
             -- ENTRADAS
@@ -28,8 +28,8 @@ end I2C_counter;
 architecture Behavioral of I2C_counter is
 
     signal clr_cont     : std_logic;
-    constant MAX_CNT    : integer := (C_FREQ_SYS/C_FREQ_SCL)/4;     -- 500 KHz
-    signal cont         : integer range (C_FREQ_SYS/C_FREQ_SCL)/4 - 1 downto 0;
+    constant MAX_CNT    : integer := (C_FREQ_SYS/C_FREQ_I2C)/4;     -- 500 KHz
+    signal cont         : integer range (C_FREQ_SYS/C_FREQ_I2C)/4 - 1 downto 0;
     signal cont_4       : unsigned(1 downto 0);
 
 begin
@@ -43,7 +43,7 @@ begin
             if stop_count = '1' then
                 cont <= 0;
             else
-                if cont = (C_FREQ_SYS/C_FREQ_SCL)/4 - 1 then
+                if cont = (C_FREQ_SYS/C_FREQ_I2C)/4 - 1 then
                     cont <= 0;
                 else
                     cont <= cont + 1;
@@ -61,7 +61,7 @@ begin
             if stop_count = '1' then
                 cont_4 <= (others => '0');
             else
-                if cont = (C_FREQ_SYS/C_FREQ_SCL)/4 - 1 then
+                if cont = (C_FREQ_SYS/C_FREQ_I2C)/4 - 1 then
                     if cont_4 = "11" or (condition = '1' and cont_4 = "01")then
                         cont_4 <= (others => '0');
                     else
@@ -99,6 +99,6 @@ begin
     div     <= std_logic_vector(cont_4);  
     
     -- SALIDA EN FORMA DE DESBORDAMIENTO
-    overflow <= '1' when cont = (C_FREQ_SYS/C_FREQ_SCL)/4 - 1 else '0';
+    overflow <= '1' when cont = (C_FREQ_SYS/C_FREQ_I2C)/4 - 1 else '0';
 
 end Behavioral;
