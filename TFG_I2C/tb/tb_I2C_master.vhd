@@ -6,14 +6,14 @@ use IEEE.NUMERIC_STD.ALL;
 entity tb_I2C_master is
         generic (
                     C_FREQ_SYS  : integer := 100000000;    -- 100 MHz
-                    C_FREQ_SCL  : integer := 100000        -- 100 KHz en SCL                          
+                    C_FREQ_I2C  : integer := 100000        -- 100 KHz en SCL                          
         );
 end tb_I2C_master;
 
 architecture Behavioral of tb_I2C_master is
 
     constant CLK_PERIOD : time := (1000000000/C_FREQ_SYS)* 1ns; -- 100 MHz
-    constant SCL_PERIOD : time := (1000000/C_FREQ_SCL)* 1us; -- 100 KHz 
+    constant SCL_PERIOD : time := (1000000/C_FREQ_I2C)* 1us; -- 100 KHz 
     signal clk, reset_n, start, done, sda, scl   : std_logic;
     signal r_w  : std_logic := '0';
     signal DATA_SLAVE   : std_logic_vector(7 downto 0) := x"35";
@@ -25,10 +25,10 @@ architecture Behavioral of tb_I2C_master is
 
 begin
 
-    I2C_master : entity work.I2C_master
+    I2C_master : entity work.i2c_master
         generic map(
                     C_FREQ_SYS  => C_FREQ_SYS,
-                    C_FREQ_SCL  => C_FREQ_SCL
+                    C_FREQ_I2C  => C_FREQ_I2C
         )
         port map(
                     clk     => clk,
