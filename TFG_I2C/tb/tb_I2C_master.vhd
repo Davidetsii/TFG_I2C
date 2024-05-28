@@ -15,11 +15,11 @@ architecture Behavioral of tb_I2C_master is
     constant CLK_PERIOD : time := (1000000000/C_FREQ_SYS)* 1ns; -- 100 MHz
     constant SCL_PERIOD : time := (1000000/C_FREQ_I2C)* 1us; -- 100 KHz 
     signal clk, reset_n, start, done, sda, scl   : std_logic;
-    signal r_w  : std_logic := '0';
-    signal DATA_SLAVE   : std_logic_vector(7 downto 0) := x"35";
+    signal r_w  : std_logic := '1';
+    signal DATA_SLAVE   : std_logic_vector(15 downto 0) := x"3728";
     signal data_out    : std_logic_vector(15 downto 0);
-    signal data_in      : std_logic_vector(7 downto 0) := x"5d";
-    signal address      : std_logic_vector(6 downto 0) := "1010101";
+    signal data_in      : std_logic_vector(7 downto 0) := x"10";
+    signal address      : std_logic_vector(6 downto 0) := "0010100";
 
     
 
@@ -64,40 +64,53 @@ begin
             wait for SCL_PERIOD/8;
             start <= '1';
             wait for CLK_PERIOD + CLK_PERIOD/4;
-            start <= '0';
-            wait for 9*SCL_PERIOD + SCL_PERIOD/2;
-            for k in 0 to 0 loop
-                data_in <= data_in(0)&data_in(7 downto 1);
-                wait for 11*SCL_PERIOD;            
-            end loop;            
+            start <= '0';     
+            wait for 8*SCL_PERIOD + SCL_PERIOD/4 + 999*CLK_PERIOD + 3*CLK_PERIOD/4;              
+            sda <= '1';
+            wait for SCL_PERIOD;
+            sda <= 'Z';
+            wait for 10*SCL_PERIOD; 
+            sda <= 'Z';
+            wait for SCL_PERIOD;
+            sda <= 'Z';            
             wait;
         else
             wait for SCL_PERIOD/8;
-            START <= '1';
+            start <= '1';
             wait for CLK_PERIOD + CLK_PERIOD/4;
-            START <= '0'; 
-            wait for 9*SCL_PERIOD + SCL_PERIOD/2;
-            for k in 0 to 0 loop
-                data_in <= data_in(0)&data_in(7 downto 1);         
-                wait for 11*SCL_PERIOD; 
-            end loop;
-            wait for 10*SCL_PERIOD + 3*SCL_PERIOD/4;
+            start <= '0'; 
+            wait for 8*SCL_PERIOD + SCL_PERIOD/4 + 999*CLK_PERIOD + 3*CLK_PERIOD/4;
+            sda <= '0';
+            wait for SCL_PERIOD;
+            sda <= 'Z';   
+            wait for 10*SCL_PERIOD; 
+            sda <= '0';
+            wait for SCL_PERIOD;
+            sda <= 'Z';                        
+           -- for k in 0 to 0 loop
+           --     data_in <= data_in(0)&data_in(7 downto 1);         
+           --     wait for 11*SCL_PERIOD; 
+           -- end loop;
+           -- wait for 10*SCL_PERIOD + 3*SCL_PERIOD/4;
             
-            wait for 4*SCL_PERIOD +3*SCL_PERIOD/2 + 999*CLK_PERIOD;
+           wait for 13*SCL_PERIOD + SCL_PERIOD/2;
+           sda <= 'Z';
+           wait for SCL_PERIOD;
+           sda <= 'Z';  
+           wait for SCL_PERIOD + 999*CLK_PERIOD;          
             
-            for k in 0 to 1 loop
-                for i in 0 to 6 loop
+                for i in 0 to 7 loop
+                    sda <= DATA_SLAVE(15 - i);
+                    wait for SCL_PERIOD;
+                end loop;    
+                sda <= 'Z';
+                wait for 3*SCL_PERIOD;   
+                for i in 0 to 7 loop
                     sda <= DATA_SLAVE(7 - i);
                     wait for SCL_PERIOD;
-                end loop;
-                sda <= DATA_SLAVE(0);
-                wait for SCL_PERIOD;
-                sda <= 'Z';   
-                wait for 2*SCL_PERIOD;
-                DATA_SLAVE <= DATA_SLAVE(6 downto 0)&'1';
-                wait for SCL_PERIOD;
-            end loop;                                                           
-            wait;
+                end loop;   
+                sda <= 'Z';                                                              
+           wait;
         end if;
     end process;        
 
