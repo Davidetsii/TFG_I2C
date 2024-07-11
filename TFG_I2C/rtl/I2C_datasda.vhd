@@ -70,19 +70,19 @@ begin
     process(clk,reset_n)
     begin
         if reset_n = '0' then
-            sda_out <= '1';
+            sda_out <= 'Z';
         elsif clk'event and clk = '1' then
                 if ack_s = '1' and stop_sda = '1' then
-                    sda_out <= '1';
+                    sda_out <= 'Z';
                 elsif save = '1' then
                     if ack_s = '1' then
                         if done = '1' then
-                            sda_out <= '1';
+                            sda_out <= 'Z';
                         else
                         sda_out <= '0';
                         end if;
                     elsif stop_sda = '1' then
-                        sda_out <= '1';
+                        sda_out <= 'Z';
                     elsif zero_sda = '1' then
                         sda_out <= '0';
                     else

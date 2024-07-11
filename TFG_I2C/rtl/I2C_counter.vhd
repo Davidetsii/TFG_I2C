@@ -73,7 +73,7 @@ begin
     end process;    
     
     
-    -- GENERACIÓN SCL
+    -- GENERACIï¿½N SCL
   --  SCL_OUT: process (clk,reset)
   --  begin
        -- if reset = '1' then
@@ -90,9 +90,9 @@ begin
      --       end if;
    --     end if;
    -- end process;    
-   scl <= '0' when (cont_4(1) = '0' and reset_n = '1' and clr_cont = '0') or (condition = '1' and done = '1') else '1';
+   scl <= '0' when (cont_4(1) = '0' and reset_n = '1' and clr_cont = '0') or (condition = '1' and done = '1') else 'Z';
     
-    -- Reset síncrono del SCL
+    -- Reset sï¿½ncrono del SCL
     clr_cont <= stop_count or stop;
     
     -- SALIDA DIV

@@ -38,8 +38,21 @@ architecture Behavioral of I2C_state is
     signal cont_zero: unsigned(1 downto 0);
     signal BYTES_W  : std_logic_vector(1 downto 0) := "01";
     signal BYTES_R  : std_logic_vector(1 downto 0);
+    signal sda_reg, sda_s : std_logic;
     
 begin
+
+    -- Synchronizer for SDA
+    process (clk, reset_n)
+    begin
+        if reset_n = '0' then
+            sda_reg <= '0';
+            sda_s   <= '0';
+        elsif clk'event and clk = '1' then
+            sda_reg <= sda;
+            sda_s   <= sda_reg;
+        end if;
+    end process;
 
     --FSM
     process(clk,reset_n)
@@ -140,7 +153,7 @@ begin
                     end if;
                     if final_scl = '1' then
                         FSM <= ZERO;
-                        if sda = '1' then
+                        if sda_s = '1' or sda_s = 'H' then
                             FSM_ant <= ZERO;
                         elsif FSM_ant = RECEIVE then
                             FSM_ant <= RECEIVE;
