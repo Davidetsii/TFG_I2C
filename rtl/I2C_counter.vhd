@@ -19,7 +19,9 @@ entity I2C_counter is
             done        : in std_logic;
             -- SALIDAS
             overflow: out std_logic;
-            scl     : inout std_logic;
+            scl_in      : in std_logic;
+            scl_out     : out std_logic;
+            scl_en      : out std_logic;
             div     : out std_logic_vector(1 downto 0)
     );
 end I2C_counter;
@@ -90,8 +92,9 @@ begin
      --       end if;
    --     end if;
    -- end process;    
-   scl <= '0' when (cont_4(1) = '0' and reset_n = '1' and clr_cont = '0') or (condition = '1' and done = '1') else 'Z';
-    
+   scl_out <= '0';
+   scl_en  <= '0' when (cont_4(1) = '0' and reset_n = '1' and clr_cont = '0') or (condition = '1' and done = '1') else '1'; 
+   
     -- Reset s�ncrono del SCL
     clr_cont <= stop_count or stop;
     

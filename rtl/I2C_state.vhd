@@ -11,7 +11,7 @@ entity I2C_state is
             r_w_inter   : out std_logic;-- WRITE = '0', READ = '1'
             overflow    : in std_logic;
             div         : in std_logic_vector(1 downto 0);
-            sda         : in std_logic;
+            sda_in      : in std_logic;
             done        : out std_logic;
             done_aux    : out std_logic;
             stop_count  : out std_logic;
@@ -31,7 +31,7 @@ architecture Behavioral of I2C_state is
 
     type machine is (IDLE, STARTING, ZERO, SEND, RECEIVE, ACK, RESTART, PRESTOP, STOP);
     signal FSM, FSM_ant  : machine;
-    signal final_scl, stop_scl_aux, stop_count_aux, save, final_count, s_ack, R_W_aux  : std_logic;
+    signal final_scl, stop_scl_aux, stop_count_aux, save, final_count, s_ack, R_W_aux : std_logic;
     signal cont, cont_restart : unsigned (2 downto 0);
     signal byte_w   : integer range 0 to 4;
     signal byte_r   : integer range 0 to 3;
@@ -49,7 +49,7 @@ begin
             sda_reg <= '0';
             sda_s   <= '0';
         elsif clk'event and clk = '1' then
-            sda_reg <= sda;
+            sda_reg <= sda_in;
             sda_s   <= sda_reg;
         end if;
     end process;
@@ -269,10 +269,10 @@ begin
                                         zero_sda    <= '1';                                          
                                     end if;
                                 elsif FSM_ant = ZERO then
-                                    FSM <= PRESTOP;
-                                    FSM_ant <= ZERO; 
-                                    stop_sda    <= '0';
-                                    zero_sda    <= '1';  
+                                        FSM <= PRESTOP;
+                                        FSM_ant <= ZERO; 
+                                        stop_sda    <= '0';
+                                        zero_sda    <= '1';  
                                 elsif FSM_ant = IDLE then
                                     FSM <= RECEIVE;
                                     FSM_ant <= ZERO;    

@@ -15,8 +15,12 @@ entity i2c_master is
             address : in std_logic_vector(6 downto 0);
             data_in : in std_logic_vector(7 downto 0);        
             done    : out std_logic;
-            sda     : inout std_logic;
-            scl     : inout std_logic;
+            sda_in  : in std_logic;
+            sda_out : out std_logic;
+            sda_en  : out std_logic;
+            scl_in  : in std_logic;
+            scl_out : out std_logic;
+            scl_en  : out std_logic;
             data_out: out std_logic_vector(15 downto 0);
             r_w     : in std_logic                 
     );
@@ -42,7 +46,9 @@ begin
             condition   => condition,   
             done        => done_aux,  
             overflow    => overflow,
-            scl         => scl,
+            scl_in      => scl_in,
+            scl_out     => scl_out,
+            scl_en      => scl_en,
             div         => div
         );
 
@@ -55,7 +61,7 @@ begin
             r_w_inter   => r_w_inter,  
             div         => div, 
             overflow    => overflow,
-            sda         => sda,
+            sda_in      => sda_in,
             done        => done,
             done_aux    => done_aux,
             stop_count  => stop_count,
@@ -85,7 +91,9 @@ begin
         reading     => reading,
         data_in     => data_in,
         address     => address,
-        sda         => sda,
+        sda_in      => sda_in,
+        sda_out     => sda_out,
+        sda_en      => sda_en,
         div         => div,
         data_read   => data_out
     );
