@@ -121,8 +121,15 @@ begin
         we_a <= '1';
         addr_a <= std_logic_vector(to_unsigned(28, 32));
         din_a <= x"00001010";
-        wait for clk_period;
+        --wait for clk_period;
 
+        -- Write to Port B
+        en_b <= '1';
+        we_b <= '0';
+        addr_b <= std_logic_vector(to_unsigned(28, 32));
+        din_b <= x"00000003";
+        wait for clk_period;
+        
         addr_a <= std_logic_vector(to_unsigned(29, 32));
         din_a <= x"00002020";
         wait for clk_period;
@@ -135,14 +142,9 @@ begin
         addr_a <= std_logic_vector(to_unsigned(29, 32));
         wait for clk_period;
 
-        -- Write to Port B
-        en_b <= '1';
-        we_b <= '1';
-        addr_b <= std_logic_vector(to_unsigned(2, 32));
-        din_b <= x"00000003";
-        wait for clk_period;
 
-        addr_b <= std_logic_vector(to_unsigned(3, 32));
+
+        addr_b <= std_logic_vector(to_unsigned(29, 32));
         din_b <= x"00000004";
         wait for clk_period;
 
