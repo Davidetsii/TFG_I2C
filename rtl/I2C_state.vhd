@@ -78,6 +78,7 @@ begin
             R_W_aux <= '0';
         elsif clk'event and clk = '1' then
                 if FSM = IDLE then
+                    cont_restart <= "000";
                     stop_count_aux <= '1';
                     stop_scl_aux <= '1';
                     sipo        <= '0';
